@@ -195,17 +195,10 @@ def reissue_book(request):
 def create_user(request):
     serializer = CustomUserSerializer(data=request.data)
     if serializer.is_valid():
-        # Explicitly create the user using the serializer's create method
-        user = CustomUser.objects.create_user(
-            username=serializer.validated_data['username'],
-            email=serializer.validated_data['email'],
-            password=serializer.validated_data['password'],
-            name=serializer.validated_data['name'],
-            role=serializer.validated_data['role']
-        )
-        # Return user data without password
-        response_data = CustomUserSerializer(user).data
-        return Response(response_data, status=status.HTTP_201_CREATED)
+        # Use serializer.save() which will handle user creation
+        serializer.save()
+        # Return serializer data which already excludes password
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
@@ -288,3 +281,12 @@ def get_all_users(request):
     users = CustomUser.objects.all()
     serializer = CustomUserSerializer(users, many=True)
     return Response(serializer.data)
+
+@api_view(['POST'])
+@permission_classes([IsStaffOrAdmin])
+def add_book(request):
+    serializer = BookSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

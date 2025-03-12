@@ -1,7 +1,8 @@
 # Library Management System API
 
 A Django REST API for managing a library system with books, users, and issue entries.
-To find what urls do what, look into backend/core/urls.py where u will find the functions which are triggered on urls. The functions are defined in backend/core/views.py
+To find what urls do what, look into backend/core/urls.py where u will find the functions which are triggered when a url is used. The functions are defined in backend/core/views.py
+The tables/models are described in backend/core/models.py
 
 Instructions for integrating frontend are at the end of this doc. Instructions for testing with curl are given below, test the curls and add more sample data.
 There is a django admin panel where u can find everything on the database (check subheading 6 in setup instructions.)
@@ -123,6 +124,19 @@ curl -X GET http://localhost:8000/api/books/1/ \
 
 # Get available books
 curl -X GET http://localhost:8000/api/books/available/ \
+  -b cookies.txt
+
+# Add new book (Staff/Admin only)
+curl -X POST http://localhost:8000/api/add-book/ \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "Python Programming",
+    "author": "John Doe",
+    "isbn": "1234567890123",
+    "genre": "Programming",
+    "abstract": "A comprehensive guide to Python programming",
+    "available": true
+  }' \
   -b cookies.txt
 
 # Search books (with optional availability filter)
