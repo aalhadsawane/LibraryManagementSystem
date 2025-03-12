@@ -4,6 +4,7 @@ A Django REST API for managing a library system with books, users, and issue ent
 To find what urls do what, look into backend/core/urls.py where u will find the functions which are triggered on urls. The functions are defined in backend/core/views.py
 
 Instructions for integrating frontend are at the end of this doc. Instructions for testing with curl are given below, test the curls and add more sample data.
+There is a django admin panel where u can find everything on the database (check subheading 6 in setup instructions.)
 
 ## Setup Instructions
 
@@ -33,15 +34,24 @@ python manage.py makemigrations
 python manage.py migrate
 ```
 
-### 4. Create Superuser
+### 4. Create Superuser (optional)
 ```bash
 python manage.py createsuperuser
+```
+u can just use the existing superuser instead:
+```
+username: aalhads
+password: user123
 ```
 
 ### 5. Run Development Server
 ```bash
 python manage.py runserver
 ```
+
+### 6. Login into django admin panel as the superuser
+Open `http://127.0.0.1:8000/admin/` and login with above mentioned superuser credentials.
+Although u can but don't use this to create objects, we should only do that through frontend. This is for testing purposes to see if all urls are working as expected.
 
 ## API Testing with cURL
 
@@ -115,8 +125,17 @@ curl -X GET http://localhost:8000/api/books/1/ \
 curl -X GET http://localhost:8000/api/books/available/ \
   -b cookies.txt
 
-# Search books
+# Search books (with optional availability filter)
+# Search all books
 curl -X GET "http://localhost:8000/api/books/search/?q=python" \
+  -b cookies.txt
+
+# Search only available books
+curl -X GET "http://localhost:8000/api/books/search/?q=python&available=true" \
+  -b cookies.txt
+
+# Search only unavailable books
+curl -X GET "http://localhost:8000/api/books/search/?q=python&available=false" \
   -b cookies.txt
 ```
 

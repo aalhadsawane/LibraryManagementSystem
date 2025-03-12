@@ -219,6 +219,8 @@ def get_open_issue_entries(request):
 @permission_classes([IsAuthenticated])
 def search_book(request):
     query = request.GET.get('q', '')
+    available = request.GET.get('available')
+    
     if not query:
         return Response({'error': 'Search query is required'}, status=status.HTTP_400_BAD_REQUEST)
     
@@ -235,7 +237,14 @@ def search_book(request):
             )
         )
     # Filter out books with no matches (relevance > 0)
-    ).filter(relevance__gt=0).order_by('-relevance', 'title')
+    ).filter(relevance__gt=0)
+    
+    # Apply availability filter if specified
+    if available is not None:
+        is_available = available.lower() == 'true'
+        books = books.filter(available=is_available)
+    
+    books = books.order_by('-relevance', 'title')
     
     serializer = BookSerializer(books, many=True)
     return Response(serializer.data)
