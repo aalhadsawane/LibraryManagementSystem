@@ -30,8 +30,9 @@ class LoginSerializer(serializers.Serializer):
     def validate(self, data):
         user = authenticate(email=data['email'], password=data['password'])
         if user and user.is_active:
-            return {'user': user}
-        raise serializers.ValidationError("Incorrect credentials")
+            data['user'] = user
+            return data
+        raise serializers.ValidationError('Invalid credentials')
 
 class BookSerializer(serializers.ModelSerializer):
     class Meta:
@@ -55,4 +56,4 @@ class NotificationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Notification
         fields = '__all__'
-        read_only_fields = ['created_at'] 
+        read_only_fields = ['is_read'] 

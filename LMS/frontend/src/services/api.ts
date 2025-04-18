@@ -9,7 +9,18 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  xsrfCookieName: 'csrftoken',
+  xsrfHeaderName: 'X-CSRFToken'
 });
+
+// Add a response interceptor for better error handling
+api.interceptors.response.use(
+  response => response,
+  error => {
+    console.error('API Error:', error.response?.data || error.message);
+    return Promise.reject(error);
+  }
+);
 
 // Authentication Services
 export const authService = {
@@ -118,8 +129,14 @@ export const userService = {
   },
   
   createUser: async (userData: any) => {
-    const response = await api.post('/users/', userData);
-    return response.data;
+    console.log('Creating user with data:', userData);
+    try {
+      const response = await api.post('/users/', userData);
+      return response.data;
+    } catch (error: any) {
+      console.error('Error creating user:', error.response?.data || error);
+      throw error;
+    }
   },
   
   updateUser: async (id: number, userData: any) => {

@@ -6,6 +6,7 @@ import Dashboard from './pages/Dashboard';
 import Books from './pages/Books';
 import ManageIssues from './pages/ManageIssues';
 import ManageUsers from './pages/ManageUsers';
+import MyIssues from './pages/MyIssues';
 
 // Protected route component
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -73,6 +74,14 @@ const AppRoutes = () => {
           element={
             <ProtectedRoute>
               <Books />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/my-issues" 
+          element={
+            <ProtectedRoute>
+              <MyIssues />
             </ProtectedRoute>
           } 
         />

@@ -7,8 +7,12 @@ from datetime import timedelta
 
 class UserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
+        """
+        Create and save a user with the given email and password.
+        """
         if not email:
             raise ValueError('The Email field must be set')
+        
         email = self.normalize_email(email)
         user = self.model(email=email, **extra_fields)
         user.set_password(password)
@@ -144,23 +148,22 @@ class BookIssue(models.Model):
         return False
 
 class Notification(models.Model):
-    TYPE_CHOICES = (
+    NOTIFICATION_TYPES = (
         ('ISSUE_REQUEST', 'Issue Request'),
-        ('ISSUED', 'Book Issued'),
-        ('DUE_REMINDER', 'Due Date Reminder'),
-        ('OVERDUE', 'Book Overdue'),
-        ('RETURNED', 'Book Returned'),
+        ('ISSUED', 'Issued'),
+        ('RETURNED', 'Returned'),
+        ('OVERDUE', 'Overdue'),
     )
     
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
     message = models.TextField()
-    notification_type = models.CharField(max_length=15, choices=TYPE_CHOICES)
-    book_issue = models.ForeignKey(BookIssue, on_delete=models.CASCADE, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     is_read = models.BooleanField(default=False)
+    notification_type = models.CharField(max_length=15, choices=NOTIFICATION_TYPES)
+    book_issue = models.ForeignKey(BookIssue, on_delete=models.CASCADE, null=True, blank=True)
     
     class Meta:
         ordering = ['-created_at']
     
     def __str__(self):
-        return f"{self.notification_type} for {self.user.get_full_name()}"
+        return f"{self.user.email} - {self.notification_type} - {self.created_at.strftime('%Y-%m-%d %H:%M')}"

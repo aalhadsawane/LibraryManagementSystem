@@ -25,6 +25,7 @@ interface User {
   first_name: string;
   last_name: string;
   user_type: string;
+  username?: string;
 }
 
 interface UserFormData {
@@ -33,6 +34,7 @@ interface UserFormData {
   last_name: string;
   user_type: string;
   password?: string;
+  username?: string;
 }
 
 const ManageUsers: React.FC = () => {
@@ -48,6 +50,7 @@ const ManageUsers: React.FC = () => {
     last_name: '',
     user_type: 'MEMBER',
     password: '',
+    username: '',
   });
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState<boolean>(false);
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
@@ -84,6 +87,7 @@ const ManageUsers: React.FC = () => {
       email: '',
       first_name: '',
       last_name: '',
+      username: '',
       user_type: 'MEMBER',
       password: '',
     });
@@ -97,6 +101,7 @@ const ManageUsers: React.FC = () => {
       email: user.email,
       first_name: user.first_name,
       last_name: user.last_name,
+      username: user.username || '',
       user_type: user.user_type,
     });
     setIsModalOpen(true);
@@ -132,7 +137,14 @@ const ManageUsers: React.FC = () => {
           toast.error('Password is required for new users');
           return;
         }
-        await userService.createUser(formData);
+        
+        // Generate username from email if not provided
+        const userData = { ...formData };
+        if (!userData.username || userData.username.trim() === '') {
+          userData.username = userData.email.split('@')[0];
+        }
+        
+        await userService.createUser(userData);
         toast.success('User created successfully');
       } else {
         if (!currentUser) return;
@@ -142,9 +154,10 @@ const ManageUsers: React.FC = () => {
       
       setIsModalOpen(false);
       setRefreshTrigger(prev => prev + 1);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error submitting user:', error);
-      toast.error(`Failed to ${modalMode === 'add' ? 'create' : 'update'} user`);
+      const errorMsg = error.response?.data?.error || `Failed to ${modalMode === 'add' ? 'create' : 'update'} user`;
+      toast.error(errorMsg);
     }
   };
 
@@ -237,6 +250,19 @@ const ManageUsers: React.FC = () => {
                   onChange={handleInputChange}
                   className="col-span-3"
                   required
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="username" className="text-right">
+                  Username
+                </Label>
+                <Input
+                  id="username"
+                  name="username"
+                  value={formData.username}
+                  onChange={handleInputChange}
+                  className="col-span-3"
+                  placeholder="Leave blank to generate from email"
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
